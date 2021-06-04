@@ -1,0 +1,52 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-size: 10px;
+    text-size-adjust: 100%;
+}
+
+.wrap {
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+}
+
+.wrap p {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+}
+.wrap p span {
+    font-size: 2rem;
+    color: red;
+}
+
+.wrap .square{
+    width: 30px;
+    height: 30px;
+    border: 1px solid #000;
+}
+
+.square.active {
+    background-color: pink;
+}
+.square.stay {
+    background-color: red;
+}
+
+.wrap .outer{
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.wrap .line{
+    display: flex;
+}
+
+.block {
+    width: 30px;
+    height: 30px;
+    background-color: red;
+}
+
