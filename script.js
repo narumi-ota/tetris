@@ -71,7 +71,7 @@ var app = new Vue({
         config: {
             width: 10,
             height: 10,
-            interval: 300,
+            interval: 600,
             blockSize: 30,
         },
         stageWidth: 0,
@@ -96,6 +96,13 @@ var app = new Vue({
             }
             if(ev.key === 'ArrowUp'){
                 vm.rotate();
+            }
+            if(ev.key === 'ArrowDown'){
+                if(vm.checkStageIndex(0,-1,0)){
+                    vm.moveDown();
+                } else {
+                    return false;
+                }
             }
         });
     },
@@ -157,13 +164,12 @@ var app = new Vue({
             let interval = this.config.interval;
 
             let timer = setInterval(()=>{
-                let result = this.checkStageIndex(0,1);
+                let result = this.checkStageIndex(0,1,0);
                 if(!result){
                     this.mergeCurrentToStage();
                     clearInterval(timer);
                 } else {
                     this.moveDown();
-                    this.checkRow();
                 }
             },interval);
         },
@@ -185,9 +191,10 @@ var app = new Vue({
             }
 
             this.gameOver();
+            this.checkRow();
             this.makeBlock();
         },
-        checkStageIndex(plusX,plusY){
+        checkStageIndex(plusX,plusY,plusW){
             let cboy = this.currentBlock.offset.y;
             let cbox = this.currentBlock.offset.x;
             let cbw = this.currentBlock.width;
@@ -195,9 +202,11 @@ var app = new Vue({
             let cbml = this.currentBlock.matrix.length;
             let sm = this.stageMatrix;
 
-            //向かう先をチェックするために一時的に+1
+            //向かう先をチェックするため
             cbox += plusX;
             cboy += plusY;
+            //ブロックの長さの変化を許容できるかチェックするため
+            cbw += plusW;
             
             for(let index = 0; index < cbml ; index++){
                 let targetCol = Math.floor(index/cbw);
@@ -212,7 +221,7 @@ var app = new Vue({
             return true;
         },
         moveLeft: function(){
-            let checker = this.checkStageIndex(-1,0);
+            let checker = this.checkStageIndex(-1,0,0);
             if(this.currentBlock.offset.x > 0 && checker){
                 this.currentBlock.offset.x -= 1;
             }
@@ -221,7 +230,7 @@ var app = new Vue({
             let stageWidth = this.config.width;
             let cbw = this.currentBlock.width;
             let blockRightX = this.currentBlock.offset.x + cbw;
-            let checker = this.checkStageIndex(1,0);
+            let checker = this.checkStageIndex(1,0,0);
             if(blockRightX < stageWidth && checker){
                 this.currentBlock.offset.x += 1;
             }
@@ -247,84 +256,94 @@ var app = new Vue({
             let cbh = cbm.length / cbw;
             let rotate = this.currentBlock.rotate();
             let count = this.rotateCount;
-
             let stageWidth = this.config.width;
             let blockRightX = this.currentBlock.offset.x + cbw;
 
-
-            //ここのチェックの仕方をブロック毎に変えるべき？
-            if(blockRightX > stageWidth){
-                return false;
-            }
-        
             if (rotate === 1){
                 //BarBlock
-                let checker = this.checkStageIndex(4,-1);
-                if(!checker){
-                    return false;
-                }
-                this.currentBlock.width = cbh;
-                this.currentBlock.offset.x += 1;
-                this.currentBlock.offset.y -= 1;
-            } else if (rotate === 2) {
-                //TBlock
-                let checker = this.checkStageIndex(2,-1);
-                if(!checker){
-                    return false;
+                if(count%2 !== 0){
+                    blockRightX += 3;
+                    if(blockRightX > stageWidth){
+                        return false;
+                    }
+                    let checker = this.checkStageIndex(0,0,3)
+                    if(!checker){
+                        return false;
+                    }
+                } else {
+                    let checker = this.checkStageIndex(0,0,-3)
+                    if(!checker){
+                        return false;
+                    }
                 }
 
+                this.currentBlock.width = cbh;
+                this.rotateCount += 1;
+                
+            } else if (rotate === 2) {
+                //TBlock
                 if(cbh === 2){
+                    let checker = this.checkStageIndex(1,1,-1)
+                    if(!checker){
+                        return false;
+                    }
                     if(count === 2 || count%4 !== 0){
                         const array = [1,0,1,1,1,0];
                         this.currentBlock.matrix = array;
-                        this.rotateCount += 1;
-                        this.currentBlock.offset.x += 1;
                     } else {
                         const array = [0,1,1,1,0,1];
                         this.currentBlock.matrix = array;
-                        this.rotateCount += 1;
-                        this.currentBlock.offset.x += 1;
                     }
+                    this.currentBlock.offset.x += 1;
+                    this.currentBlock.offset.y += 1;
                 } else {
+                    if(this.currentBlock.offset.x -1 < 0){
+                        return false;
+                    }
+                    let checker = this.checkStageIndex(-1,1,1)
+                    if(!checker){
+                        return false;
+                    }
                     if(count === 3 || count%4 !== 1){
                         const array = [1,1,1,0,1,0];
                         this.currentBlock.matrix = array;
-                        this.rotateCount += 1;
-                        this.currentBlock.offset.x -= 1;
                     } else {
                         const array = [0,1,0,1,1,1];
                         this.currentBlock.matrix = array;
-                        this.rotateCount += 1;
-                        this.currentBlock.offset.x -= 1;
                     }
+                    this.currentBlock.offset.x -= 1;
+                    this.currentBlock.offset.y += 1;
                 }
                 
                 this.currentBlock.width = cbh;
-                this.currentBlock.offset.y -= 1;
+                this.rotateCount += 1;
+
             } else if (rotate === 3) {
                 //SquareBlock
                 return false;
             } else if (rotate === 4) {
                 //StairsBlock
-                let checker = this.checkStageIndex(1,-1);
-                if(!checker){
-                    return false;
-                }
-
                 if(cbh === 2){
+                    let checker = this.checkStageIndex(1,1,1)
+                    if(!checker){
+                        return false;
+                    }
                     const array = [1,0,1,1,0,1];
                     this.currentBlock.matrix = array;
                     this.currentBlock.offset.x += 1;
-                    this.rotateCount += 1;
+                    this.currentBlock.offset.y += 1;
                 } else {
+                    let checker = this.checkStageIndex(-1,1,-1)
+                    if(!checker){
+                        return false;
+                    }
                     const array = [0,1,1,1,1,0];
                     this.currentBlock.matrix = array;
                     this.currentBlock.offset.x -= 1;
-                    this.rotateCount += 1;
+                    this.currentBlock.offset.y += 1;
                 }
-
+                
                 this.currentBlock.width = cbh;
-                this.currentBlock.offset.y -= 1;
             } else {
                 return false;
             }

@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="wrap" id="app">
-    <button @click="gameStart">開始</button>
+    <button @click="gameStart">開始</button>{{ rotateCount }}
         <p><span>{{points}}</span>&emsp;points</p>
 
         <div class="outer" :style="{width: stageWidth + 'px'}">
