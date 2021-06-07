@@ -24,7 +24,7 @@
 .wrap .square{
     width: 30px;
     height: 30px;
-    border: 1px solid #000;
+    border: 1px solid #bbb;
 }
 
 .square.active {
@@ -50,3 +50,21 @@
     background-color: red;
 }
 
+button {
+    background-color: red;
+    color: #fff;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    outline: none;
+}
+
+.area {
+    max-width: 300px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 20px;
+}

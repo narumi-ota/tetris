@@ -9,8 +9,10 @@
 </head>
 <body>
     <div class="wrap" id="app">
-    <button @click="gameStart">開始</button>{{ rotateCount }}
-        <p><span>{{points}}</span>&emsp;points</p>
+        <div class="area"> 
+            <button @click="gameStart">開始</button>
+            <p><span>{{points}}</span>&emsp;points</p>
+        </div>
 
         <div class="outer" :style="{width: stageWidth + 'px'}">
             <div
@@ -21,7 +23,6 @@
                 stay : stageMatrix[i-1]
             }"
             >
-            {{ i-1 }}
             </div>
         </div>
     </div>
