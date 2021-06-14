@@ -79,6 +79,7 @@ var app = new Vue({
         currentBlock: null,
         points: 0,
         rotateCount: 0,
+        isPlaying: 0,
     },
     mounted(){
         let width = this.config.width;
@@ -98,7 +99,7 @@ var app = new Vue({
                 vm.rotate();
             }
             if(ev.key === 'ArrowDown'){
-                if(vm.checkStageIndex(0,-1,0)){
+                if(vm.checkStageIndex(0,1,0)){
                     vm.moveDown();
                 } else {
                     return false;
@@ -133,7 +134,13 @@ var app = new Vue({
     },
     methods: {
         gameStart: function(){
-            this.makeBlock();
+            if (this.isPlaying === 0){
+                this.makeBlock();
+            } else {
+                return false;
+            }
+
+            this.isPlaying = 1;
         },
         makeBlock: function(){
             this.rotateCount = 0;
@@ -323,8 +330,9 @@ var app = new Vue({
                 return false;
             } else if (rotate === 4) {
                 //StairsBlock
+            
                 if(cbh === 2){
-                    let checker = this.checkStageIndex(1,1,1)
+                    let checker = this.checkStageIndex(1,1,-1)
                     if(!checker){
                         return false;
                     }
@@ -333,7 +341,10 @@ var app = new Vue({
                     this.currentBlock.offset.x += 1;
                     this.currentBlock.offset.y += 1;
                 } else {
-                    let checker = this.checkStageIndex(-1,1,-1)
+                    if(this.currentBlock.offset.x -1 < 0){
+                        return false;
+                    }
+                    let checker = this.checkStageIndex(-1,-1,1)
                     if(!checker){
                         return false;
                     }
@@ -405,6 +416,7 @@ var app = new Vue({
             for(let i = 0 ; i < firstRowEnd ; i ++){
                 if(this.stageMatrix[i] === 1){
                     if(confirm('GAME OVER!')){
+                        this.isPlaying = 0;
                         location.reload();
                         return false;
                     }
